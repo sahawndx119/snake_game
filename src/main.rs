@@ -94,12 +94,11 @@ fn main() {
                 };
             }
 
-            
             apples = snake_printor(&mut snake, apples);
         } else {
             apples = snake_printor(&mut snake, apples);
         }
-        
+
         if snake_eats_itself(&snake) {
             stdout
                 .execute(terminal::Clear(terminal::ClearType::All))
@@ -124,21 +123,19 @@ fn main() {
         }
 
         match rx.try_recv() {
-            Ok((mut x, mut y)) => {
-                if x == 0 {
-                    x += 1;
+            Ok((x, y)) => {
+                let res = snake
+                    .body
+                    .iter()
+                    .find(|(s_x, s_y)| (*s_x == x) && (*s_y == y));
+                match res {
+                    None => {
+                        execute!(stdout, cursor::MoveTo(x as u16, y as u16), Print("•".red()))
+                            .unwrap();
+                        apples.push((x, y));
+                    },
+                    Some(_) => {}
                 }
-                if x == 30 {
-                    x -= 1;
-                }
-                if y == 0 {
-                    y += 1;
-                }
-                if y == 30 {
-                    y -= 1;
-                }
-                execute!(stdout, cursor::MoveTo(x as u16, y as u16), Print("•".red())).unwrap();
-                apples.push((x, y));
             }
 
             Err(_) => {}
