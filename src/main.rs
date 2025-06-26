@@ -97,9 +97,22 @@ fn main() {
             apples = snake_printor(&mut snake, apples);
         }
 
+        if apples.len() >= 1{
+    
+            if apples[0].0 == 119 {
+                stdout
+                .execute(terminal::Clear(terminal::ClearType::All))
+                .unwrap()
+                .execute(cursor::MoveTo(50 , 10))
+                .unwrap()
+                .execute(Print("GAME OVER".bold().red())).unwrap();
+            return;
+        }
+    }
+    
         match rx.try_recv() {
             Ok((mut x, mut y)) => {
-                if x == 0{
+                if x == 0 {
                     x += 1;
                 }
                 if x == 30 {
@@ -141,7 +154,10 @@ fn snake_printor(snake: &mut Snake, mut apples: Vec<(i16, i16)>) -> Vec<(i16, i1
     match snake.direction {
         Direction::Up => {
             let apple_for_use = arc_apples.clone();
-            let head = snake.body[0];
+            let head = (snake.body[0].0 , snake.body[0].1 - 1);
+            if (head.0 == 0 || head.1 == 0) || (head.0 == 30 || head.1 == 30) {
+                return vec![(119 , 119)];
+            }
             handle = std::thread::spawn(move || {
                 let new_head = (head.0, head.1);
 
@@ -183,8 +199,12 @@ fn snake_printor(snake: &mut Snake, mut apples: Vec<(i16, i16)>) -> Vec<(i16, i1
             .unwrap();
         }
         Direction::Down => {
-            let head = snake.body[0];
+            let head = (snake.body[0].0 , snake.body[0].1 + 1);
             let apple_for_use = arc_apples.clone();
+            if (head.0 == 0 || head.1 == 0) || (head.0 == 30 || head.1 == 30) {
+                return vec![(119 , 119)];
+            }
+
             handle = std::thread::spawn(move || {
                 let new_head = (head.0, head.1);
 
@@ -227,7 +247,11 @@ fn snake_printor(snake: &mut Snake, mut apples: Vec<(i16, i16)>) -> Vec<(i16, i1
             .unwrap();
         }
         Direction::Right => {
-            let head = snake.body[0];
+            let head = (snake.body[0].0 + 1, snake.body[0].1);
+            if (head.0 == 0 || head.1 == 0) || (head.0 == 30 || head.1 == 30) {
+                return vec![(119 , 119)];
+            }
+
             let apple_for_use = arc_apples.clone();
             handle = std::thread::spawn(move || {
                 let new_head = (head.0, head.1);
@@ -270,7 +294,10 @@ fn snake_printor(snake: &mut Snake, mut apples: Vec<(i16, i16)>) -> Vec<(i16, i1
             .unwrap();
         }
         Direction::Left => {
-            let head = snake.body[0];
+            let head = (snake.body[0].0 - 1 , snake.body[0].1);
+            if (head.0 == 0 || head.1 == 0) || (head.0 == 30 || head.1 == 30) {
+                return vec![(119 , 119)];
+            }
             let apple_for_use = arc_apples.clone();
             handle = std::thread::spawn(move || {
                 let new_head = (head.0, head.1);
@@ -379,3 +406,4 @@ fn add_to_snake(snake: &mut Snake) {
     }
     snake.len += 1;
 }
+
