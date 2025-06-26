@@ -1,10 +1,14 @@
+use colorize::AnsiColor;
 use crossterm::event::{self, poll, Event};
 // use colorize::Style;
 use crossterm::style::Print;
 use crossterm::terminal::{disable_raw_mode, enable_raw_mode};
-use crossterm::{cursor, queue, terminal, ExecutableCommand};
+use crossterm::{cursor, execute, queue, terminal, ExecutableCommand};
 use std::io::{stdout, Write};
+use std::sync::mpsc::channel;
+use std::thread::sleep;
 use std::time::Duration;
+use rand::Rng;
 // use std::thread::sleep;
 // use std::time::Duration;
 
@@ -37,6 +41,17 @@ fn main() {
 
     stdout.flush().unwrap();
     enable_raw_mode().unwrap();
+    let (tx , rx) = channel();
+    let mut apples = Vec::new();
+
+    std::thread::spawn(move|| {
+      loop {
+        sleep(Duration::from_secs(10));
+        let rand_x = rand::thread_rng().gen_range(1..31);
+        let rand_y = rand::thread_rng().gen_range(1..31);
+        tx.send((rand_x , rand_y)).unwrap();
+      }
+    });
 
     loop {
         if poll(Duration::from_millis(200)).unwrap() {
@@ -66,6 +81,15 @@ fn main() {
             snake_printor(&mut snake);
         } else {
             snake_printor(&mut snake);
+        }
+
+        match rx.try_recv() {
+          Ok((x , y)) => {
+            apples.push((x , y));
+            execute!(stdout , Print("•".red())).unwrap();
+          },
+
+          Err(_) => {},
         }
     }
 }
