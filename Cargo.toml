@@ -1,0 +1,9 @@
+[package]
+name = "snake"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+colorize = "0.1.0"
+crossterm = "0.29.0"
+rand = "0.9.1"
